@@ -1,15 +1,62 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'application'
 }
 
+project.ext.lwjglVersion = "3.4.1"
+project.ext.lwjgl3_awtVersion = "0.2.4"
+
+project.ext.skijaVersion = "0.143.6"
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+		project.ext.lwjglNatives = "natives-linux"
+        project.ext.skijaNatives = "skija-linux-x64"
+        break
+    case OperatingSystem.WINDOWS:
+		project.ext.lwjglNatives = "natives-windows"
+        project.ext.skijaNatives = "skija-windows-x64"
+        break
+    case OperatingSystem.MAC_OS:
+        // I was unable to test Skija on macOS
+        if (System.getProperty("os.arch") == "aarch64") {
+            project.ext.lwjglNatives = "natives-macos-arm64"
+            project.ext.skijaNatives = "skija-macos-arm64"
+        } else {
+            project.ext.lwjglNatives = "natives-macos"
+            project.ext.skijaNatives = "skija-macos-x64"
+        }
+        break
+}
+
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io/' }
 }
 
 dependencies {
+    // TODO: Replace with the specific release once published
+    implementation "com.github.BuildABrowser.BuildABrowser:EmbeddingSwing:-SNAPSHOT"
+    implementation "com.github.BuildABrowser.BuildABrowser:PainterSkija:-SNAPSHOT"
+
+    implementation 'com.github.taucher2003:t2003-logger-impl:1.0.2'
+    implementation 'com.github.taucher2003:t2003-logger-binder:1.0.2'
+
     testImplementation libs.junit.jupiter
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // LWJGL and Skija are only needed when using the SkijaAWTPainter
+
+    implementation "io.github.humbleui:${skijaNatives}:${skijaVersion}"
+
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+	implementation "org.lwjgl:lwjgl::$lwjglNatives"
+	implementation "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+	implementation("org.lwjglx:lwjgl3-awt:${lwjgl3_awtVersion}") {
+        exclude group: 'org.lwjgl'
+    }
 }
 
 java {
