@@ -36,8 +36,8 @@ repositories {
 
 dependencies {
     // TODO: Replace with the specific release once published
-    implementation "com.github.BuildABrowser.BuildABrowser:EmbeddingSwing:-SNAPSHOT"
-    implementation "com.github.BuildABrowser.BuildABrowser:PainterSkija:-SNAPSHOT"
+    implementation "com.github.BuildABrowser.BuildABrowser:EmbeddingSwing:${rendererVersion}"
+    implementation "com.github.BuildABrowser.BuildABrowser:PainterSkija:${rendererVersion}"
 
     implementation 'com.github.taucher2003:t2003-logger-impl:1.0.2'
     implementation 'com.github.taucher2003:t2003-logger-binder:1.0.2'

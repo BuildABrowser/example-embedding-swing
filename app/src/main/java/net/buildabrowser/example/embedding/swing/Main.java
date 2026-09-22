@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -11,6 +12,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import net.buildabrowser.babbrowser.common.util.CommonUtil;
 import net.buildabrowser.babbrowser.embedding.swing.SwingEmbedding;
 import net.buildabrowser.babbrowser.embedding.swing.SwingEmbedding.FrameAndComponent;
 import net.buildabrowser.babbrowser.painter.core.ComponentPainter;
@@ -18,17 +20,15 @@ import net.buildabrowser.babbrowser.painter.java2d.Java2DPainter;
 import net.buildabrowser.babbrowser.painter.skija.SkijaAWTPainter;
 
 public class Main {
-
-  private static boolean useSkija = false;
   
   public static void main(String[] args) {
     System.setProperty("org.lwjgl.opengl.contextAPI", "GLX");
     setLookAndFeel();
-    useSkija = List.of(args).contains("--use-skija");
-    SwingUtilities.invokeLater(Main::start);
+    boolean useSkija = List.of(args).contains("--use-skija");
+    SwingUtilities.invokeLater(() -> CommonUtil.rethrowV(() -> start(useSkija)));
   }
 
-  private static void start() {
+  private static void start(boolean useSkija) throws IOException {
     ComponentPainter<Component> painter = useSkija ?
       new SkijaAWTPainter(false, false) :
       new Java2DPainter();
@@ -42,7 +42,7 @@ public class Main {
     jframe.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        frameAndComponent.frame().close();
+        CommonUtil.rethrowV(frameAndComponent.frame()::close);
         jframe.dispose();
       }
     });

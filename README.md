@@ -31,10 +31,10 @@ public class SwingEmbeddingTest {
   
   public static void main(String[] args) {
     System.setProperty("org.lwjgl.opengl.contextAPI", "GLX");
-    SwingUtilities.invokeLater(SwingEmbeddingTest::start);
+    SwingUtilities.invokeLater(() -> CommonUtil.rethrowV(() -> start(useSkija)));
   }
 
-  private static void start() {
+  private static void start() throws IOException {
     FrameAndComponent frameAndComponent = SwingEmbedding.newFrameComponent("https://example.com/");
     Component frameComponent = frameAndComponent.component();
 
@@ -93,10 +93,10 @@ public class SwingEmbeddingTest {
   
   public static void main(String[] args) {
     System.setProperty("org.lwjgl.opengl.contextAPI", "GLX");
-    SwingUtilities.invokeLater(SwingEmbeddingTest::start);
+    SwingUtilities.invokeLater(() -> CommonUtil.rethrowV(() -> start(useSkija)));
   }
 
-  private static void start() {
+  private static void start() throws IOException {
     RenderingEngineBuilder builder = RenderingEngineBuilder.create();
     SwingEmbedding.configure(builder);
     builder.setPainter(new SkijaPainter());
@@ -112,7 +112,7 @@ public class SwingEmbeddingTest {
     jframe.addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        frame.close();
+        CommonUtil.rethrowV(frame::close);
         jframe.dispose();
       }
     });
@@ -141,6 +141,8 @@ Here are some things you can set:
 * **Virtual Keyboard Factory** - Creates an instance of a `VirtualKeyboard`, which is used to integrate with software keyboards that expect to mutate software state instead of sending raw key events. Default: No-Op, `_1 -> new VirtualKeyboard() {}`
 * **Tab Manager** - Used to handle requests from a web page to open a new tab. Default: `NoOpTabManager`, opens "new" tabs in current tab
 * **Download Manager** - Responsible for determining where a user would like to store downloads, and then streaming the download request to its destination. Has default methods that can be overridden to block downloads. Default: `NoOpDownloadManager`, blocks all downloads
+
+You can only have one component per frame. Attempting to have multiple components mapped to the same frame will lead to undefined behavior.
 
 However, you can have multiple frames per component.
 If you have multiple frames you'd like to swap in the same viewport, use the two-argument version of `createFrameComponent`, and use `notifyActivateFrame` when the frame is swapped.
